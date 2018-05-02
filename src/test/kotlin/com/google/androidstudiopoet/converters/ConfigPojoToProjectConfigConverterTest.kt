@@ -17,7 +17,7 @@ limitations under the License.
 package com.google.androidstudiopoet.converters
 
 import com.google.androidstudiopoet.input.*
-import com.google.androidstudiopoet.models.ConfigPOJO
+import com.google.androidstudiopoet.input.ConfigPOJO
 import com.google.androidstudiopoet.testutils.assertEquals
 import com.google.androidstudiopoet.testutils.assertOn
 import com.google.androidstudiopoet.testutils.mock
@@ -66,9 +66,9 @@ class ConfigPojoToProjectConfigConverterTest {
         whenever(configPojoToModuleConfigConverter.convert(configPojo, 0)).thenReturn(moduleConfig0)
         whenever(configPojoToModuleConfigConverter.convert(configPojo, 1)).thenReturn(moduleConfig1)
         whenever(configPojoToAndroidModuleConfigConverter.convert(eq(configPojo), eq(0), eq(flavours),
-                eq(buildTypes), any())).thenReturn(androidModuleConfig0)
+                eq(buildTypes))).thenReturn(androidModuleConfig0)
         whenever(configPojoToAndroidModuleConfigConverter.convert(eq(configPojo), eq(1), eq(flavours),
-                eq(buildTypes), any())).thenReturn(androidModuleConfig1)
+                eq(buildTypes))).thenReturn(androidModuleConfig1)
         whenever(configPojoToFlavourConfigsConverter.convert(configPojo)).thenReturn(flavours)
         whenever(configPojoToBuildTypeConfigsConverter.convert(configPojo)).thenReturn(buildTypes)
         whenever(configPojoToBuildSystemConfigConverter.convert(configPojo)).thenReturn(buildSystemConfig0)

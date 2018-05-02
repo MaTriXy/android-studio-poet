@@ -19,6 +19,7 @@ package com.google.androidstudiopoet.testutils
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
 import org.junit.Assert.assertFalse
+import java.awt.image.BufferedImage
 
 fun <T> Collection<T>.assertEmpty() {
     assertTrue(this.isEmpty())
@@ -26,6 +27,14 @@ fun <T> Collection<T>.assertEmpty() {
 
 fun <T> Collection<T>.assertSize(expectedSize: Int) {
     assertEquals(expectedSize, size)
+}
+
+fun <T> Collection<T>.assertContains(item: T) {
+    assertTrue(this.contains(item))
+}
+
+fun <T> Collection<T>.assertNotContains(item: T) {
+    assertFalse(this.contains(item))
 }
 
 fun Any.assertEquals(expected: Any) {
@@ -40,4 +49,18 @@ fun Boolean.assertTrue() {
 
 fun Boolean.assertFalse() {
     assertFalse(this)
+}
+
+fun Any?.assertNull() {
+    assertEquals(null, this)
+}
+
+fun BufferedImage.assertEqualImage(bufferedImage: BufferedImage) {
+    this.height.assertEquals(bufferedImage.height)
+    this.width.assertEquals(bufferedImage.width)
+    for (y in 0..(this.height - 1)) {
+        for  (x in 0..(this.width - 1)){
+            this.getRGB(x, y).assertEquals(bufferedImage.getRGB(x, y))
+        }
+    }
 }

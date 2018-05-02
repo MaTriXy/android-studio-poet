@@ -16,4 +16,6 @@ limitations under the License.
 
 package com.google.androidstudiopoet.input
 
-data class DependencyConfig(val moduleName: String, val method: String? = null)
+class RepositoryConfig() {
+    lateinit var url: String
+}

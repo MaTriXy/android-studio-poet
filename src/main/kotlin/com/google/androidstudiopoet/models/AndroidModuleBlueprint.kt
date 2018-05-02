@@ -16,28 +16,26 @@ limitations under the License.
 
 package com.google.androidstudiopoet.models
 
-import com.google.androidstudiopoet.input.BuildTypeConfig
-import com.google.androidstudiopoet.input.DataBindingConfig
-import com.google.androidstudiopoet.input.FlavorConfig
-import com.google.androidstudiopoet.input.ResourcesConfig
+import com.google.androidstudiopoet.input.*
 import com.google.androidstudiopoet.utils.joinPath
 import com.google.androidstudiopoet.utils.joinPaths
 
 class AndroidModuleBlueprint(name: String,
-                             val numOfActivities: Int,
+                             private val numOfActivities: Int,
                              private val resourcesConfig: ResourcesConfig?,
                              projectRoot: String,
                              val hasLaunchActivity: Boolean,
                              useKotlin: Boolean,
-                             dependencies: List<ModuleDependency>,
+                             dependencies: Set<Dependency>,
                              productFlavorConfigs: List<FlavorConfig>?,
                              buildTypeConfigs: List<BuildTypeConfig>?,
                              javaPackageCount: Int, javaClassCount: Int, javaMethodsPerClass: Int,
                              kotlinPackageCount: Int, kotlinClassCount: Int, kotlinMethodsPerClass: Int,
                              extraLines: List<String>?,
                              generateTests: Boolean,
-                             dataBindingConfig: DataBindingConfig?
-) : ModuleBlueprint(name, projectRoot, useKotlin, dependencies, javaPackageCount, javaClassCount,
+                             dataBindingConfig: DataBindingConfig?,
+                             androidBuildConfig: AndroidBuildConfig
+) : AbstractModuleBlueprint(name, projectRoot, useKotlin, dependencies, javaPackageCount, javaClassCount,
         javaMethodsPerClass, kotlinPackageCount, kotlinClassCount, kotlinMethodsPerClass, extraLines, generateTests) {
 
     val packageName = "com.$name"
@@ -70,10 +68,6 @@ class AndroidModuleBlueprint(name: String,
         resourcesBlueprint?.resourcesToReferFromOutside ?: ResourcesToRefer(listOf(), listOf(), listOf())
     }
 
-    val productFlavors = productFlavorConfigs?.map { Flavor(it.name, it.dimension) }?.toSet()
-    val flavorDimensions = productFlavors?.mapNotNull { it.dimension }?.toSet()
-
-    val buildTypes = buildTypeConfigs?.map { BuildType(it.name, it.body) }?.toSet()
     val activityBlueprints by lazy {
         (0 until numOfActivities).map {
             ActivityBlueprint(activityNames[it], layoutNames[it], packagePath, packageName,
@@ -98,5 +92,10 @@ class AndroidModuleBlueprint(name: String,
     private val listenerClassesForDataBinding: List<ClassBlueprint> by lazy {
         classBlueprintSequence.filter { it.getMethodToCallFromOutside() != null }
                 .take(dataBindingConfig?.listenerCount ?: 0).toList()
+    }
+
+    val buildGradleBlueprint: AndroidBuildGradleBlueprint by lazy {
+        AndroidBuildGradleBlueprint(hasLaunchActivity, useKotlin, hasDataBinding, moduleRoot, androidBuildConfig,
+                packageName, extraLines, productFlavorConfigs, buildTypeConfigs, dependencies)
     }
 }

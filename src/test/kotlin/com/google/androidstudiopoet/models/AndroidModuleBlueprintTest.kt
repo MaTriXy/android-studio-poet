@@ -1,9 +1,6 @@
 package com.google.androidstudiopoet.models
 
-import com.google.androidstudiopoet.input.BuildTypeConfig
-import com.google.androidstudiopoet.input.DataBindingConfig
-import com.google.androidstudiopoet.input.FlavorConfig
-import com.google.androidstudiopoet.input.ResourcesConfig
+import com.google.androidstudiopoet.input.*
 import com.google.androidstudiopoet.testutils.*
 import com.nhaarman.mockito_kotlin.whenever
 import org.junit.Test
@@ -16,27 +13,6 @@ class AndroidModuleBlueprintTest {
         val blueprint = getAndroidModuleBlueprint(numOfActivities = 2)
 
         blueprint.activityNames.assertEquals(listOf("Activity0", "Activity1"))
-    }
-
-    @Test
-    fun `blueprint creates proper flavors and dimensions`() {
-        val dimension1 = "dim1"
-        val dimension2 = "dim2"
-        val flavorName1 = "flav1"
-        val flavorName2 = "flav2"
-        val flavorName3 = "flav3"
-        val flavorConfigs = listOf(
-                FlavorConfig(flavorName1, dimension1),
-                FlavorConfig(flavorName2, dimension1),
-                FlavorConfig(flavorName3, dimension2))
-        val blueprint = getAndroidModuleBlueprint(productFlavorConfigs = flavorConfigs)
-
-        blueprint.flavorDimensions!!.assertEquals(setOf(dimension1, dimension2))
-        blueprint.productFlavors!!.assertEquals(setOf(
-                Flavor(flavorName1, dimension1),
-                Flavor(flavorName2, dimension1),
-                Flavor(flavorName3, dimension2)
-        ))
     }
 
     @Test
@@ -73,28 +49,28 @@ class AndroidModuleBlueprintTest {
     }
 
     @Test
-    fun `dataBindingConfig is false when data binding config is null`() {
+    fun `hasDataBinding is false when data binding config is null`() {
         val androidModuleBlueprint = getAndroidModuleBlueprint(dataBindingConfig = null)
 
         androidModuleBlueprint.hasDataBinding.assertFalse()
     }
 
     @Test
-    fun `dataBindingConfig is false when data binding config has zero listener count`() {
+    fun `hasDataBinding is false when data binding config has zero listener count`() {
         val androidModuleBlueprint = getAndroidModuleBlueprint(dataBindingConfig = DataBindingConfig(listenerCount = 0))
 
         androidModuleBlueprint.hasDataBinding.assertFalse()
     }
 
     @Test
-    fun `dataBindingConfig is true when data binding config has positive listener count`() {
+    fun `hasDataBinding is true when data binding config has positive listener count`() {
         val androidModuleBlueprint = getAndroidModuleBlueprint(dataBindingConfig = DataBindingConfig(listenerCount = 2))
 
         androidModuleBlueprint.hasDataBinding.assertTrue()
     }
 
     @Test
-    fun `dataBindingConfig is false when data binding config has negative listener count`() {
+    fun `hasDataBinding is false when data binding config has negative listener count`() {
         val androidModuleBlueprint = getAndroidModuleBlueprint(dataBindingConfig = DataBindingConfig(listenerCount = -1))
 
         androidModuleBlueprint.hasDataBinding.assertFalse()
@@ -107,7 +83,7 @@ class AndroidModuleBlueprintTest {
             projectRoot: String = "root",
             hasLaunchActivity: Boolean = true,
             useKotlin: Boolean = false,
-            dependencies: List<ModuleDependency> = listOf(),
+            dependencies: Set<Dependency> = setOf(),
             productFlavorConfigs: List<FlavorConfig>? = null,
             buildTypeConfigs: List<BuildTypeConfig>? = null,
             javaPackageCount: Int = 1,
@@ -118,8 +94,10 @@ class AndroidModuleBlueprintTest {
             kotlinMethodsPerClass: Int = 1,
             extraLines: List<String>? = null,
             generateTests: Boolean = true,
-            dataBindingConfig: DataBindingConfig? = null
+            dataBindingConfig: DataBindingConfig? = null,
+            androidBuildConfig: AndroidBuildConfig = AndroidBuildConfig()
     ) = AndroidModuleBlueprint(name, numOfActivities, resourcesConfig, projectRoot, hasLaunchActivity, useKotlin,
             dependencies, productFlavorConfigs, buildTypeConfigs, javaPackageCount, javaClassCount, javaMethodsPerClass,
-            kotlinPackageCount, kotlinClassCount, kotlinMethodsPerClass, extraLines, generateTests, dataBindingConfig)
+            kotlinPackageCount, kotlinClassCount, kotlinMethodsPerClass, extraLines, generateTests, dataBindingConfig,
+            androidBuildConfig)
 }

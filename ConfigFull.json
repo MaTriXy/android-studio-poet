@@ -2,7 +2,7 @@
   "inputVersion": "0.1",
   "projectConfig": {
     "projectName": "genny",
-    "root": "../",
+    "root": "./modules/",
     "buildSystemConfig": {
       "buildSystemVersion": "4.3.1"
     },
@@ -30,11 +30,20 @@
           {
             "moduleName": "pureModule2",
             "method": "api"
+          },
+          {
+            "library": "org.mockito:mockito-inline:2.15.0",
+            "method": "testCompile"
           }
         ]
       },
       {
         "moduleType": "android",
+        "androidBuildConfig": {
+          "minSdkVersion" : 20,
+          "targetSdkVersion": 27,
+          "compileSdkVersion" : 27
+        },
         "javaPackageCount": 10,
         "javaClassCount": 10,
         "javaMethodsPerClass": 10,
@@ -60,6 +69,10 @@
           {
             "moduleName": "libraryModule",
             "method": "api"
+          },
+          {
+            "library": "org.mockito:mockito-inline:2.15.0",
+            "method": "testCompile"
           }
         ]
       },
@@ -83,7 +96,19 @@
           {
             "moduleName": "pureModule"
           }
+        ],
+        "flavors": [
+          {
+            "name": "red",
+            "dimension": "color",
+            "count": 2
+          }
         ]
+      }
+    ],
+    "repositories": [
+      {
+        "url": "https://oss.sonatype.org/content/repositories/snapshots"
       }
     ]
   }

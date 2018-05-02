@@ -14,16 +14,6 @@ See the License for the specific language governing permissions and
 limitations under the License.
  */
 
-package com.google.androidstudiopoet.generators
+package com.google.androidstudiopoet.input
 
-import com.google.androidstudiopoet.BuildGradle
-import com.google.androidstudiopoet.models.ModuleBlueprint
-import com.google.androidstudiopoet.utils.fold
-
-class BuildGradleGenerator {
-    fun create(moduleBlueprint: ModuleBlueprint): String {
-        return BuildGradle.print(moduleBlueprint.dependencies
-                .map { it -> "${it.method.value} project(':${it.name}')\n" }
-                .fold(), moduleBlueprint.useKotlin, moduleBlueprint.generateTests, moduleBlueprint.extraLines)
-    }
-}
+data class AndroidBuildConfig(val minSdkVersion: Int = 19, val targetSdkVersion: Int = 26, val compileSdkVersion: Int = 26)

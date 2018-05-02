@@ -42,9 +42,11 @@ class DependencyValidator {
             return true
         }
         if (javaDependsOnAndroid(from, to)) {
+            println("Java module ${dependency.from} cannot depend on Android module ${dependency.to}")
             return true
         }
         if (isApp(to)) {
+            println("Module ${dependency.from} cannot depend on Android app module ${dependency.to}")
             return true
         }
         return false
@@ -52,17 +54,23 @@ class DependencyValidator {
 
     private fun badIndexByType(moduleSplit: ModuleSplit, moduleCount: Int, androidModuleCount: Int): Boolean =
             when(moduleSplit.type) {
-                MODULE_TYPE -> badIndex(moduleSplit.index, moduleCount)
-                ANDROID_TYPE -> badIndex(moduleSplit.index, androidModuleCount)
+                MODULE_TYPE -> badIndex(moduleSplit, moduleCount)
+                ANDROID_TYPE -> badIndex(moduleSplit, androidModuleCount)
                 else -> true
             }
 
-    private fun badIndex(index: Int, count: Int) = (index < 0) || (index >= count)
+    private fun badIndex(split: ModuleSplit, count: Int) : Boolean {
+        if ((split.index < 0) || (split.index >= count)) {
+            println("Incorrect index for ${split.name()} in dependencies, should be in [0, $count)")
+            return true
+        }
+        return false
+    }
 
     private fun javaDependsOnAndroid(from: ModuleSplit, to: ModuleSplit): Boolean =
-            from.type.equals(MODULE_TYPE) && to.type.equals(ANDROID_TYPE)
+            from.type == MODULE_TYPE && to.type == ANDROID_TYPE
 
-    private fun isApp(to: ModuleSplit): Boolean = to.index == 0 && to.type.equals(ANDROID_TYPE)
+    private fun isApp(to: ModuleSplit): Boolean = to.index == 0 && to.type == ANDROID_TYPE
 
     private class ModuleSplit(moduleName : String){
         val type: String
@@ -75,6 +83,10 @@ class DependencyValidator {
             }
             type = moduleName.substring(0, firstChar + 1)
             index = moduleName.substring(firstChar + 1).toInt()
+        }
+
+        fun name(): String {
+            return "$type$index"
         }
     }
 }

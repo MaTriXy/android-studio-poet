@@ -17,31 +17,32 @@ limitations under the License.
 package com.google.androidstudiopoet
 
 import com.google.androidstudiopoet.converters.*
+import com.google.androidstudiopoet.deserializers.DependencyConfigDeserializer
 import com.google.androidstudiopoet.deserializers.ModuleConfigDeserializer
-import com.google.androidstudiopoet.generators.BuildGradleGenerator
-import com.google.androidstudiopoet.generators.PackagesGenerator
+import com.google.androidstudiopoet.generators.*
 import com.google.androidstudiopoet.generators.android_modules.*
-import com.google.androidstudiopoet.generators.packages.JavaGenerator
-import com.google.androidstudiopoet.generators.packages.KotlinGenerator
-import com.google.androidstudiopoet.generators.project.GradleSettingsGenerator
-import com.google.androidstudiopoet.generators.project.ProjectBuildGradleGenerator
-import com.google.androidstudiopoet.generators.android_modules.AndroidModuleGenerator
 import com.google.androidstudiopoet.generators.android_modules.resources.ImagesGenerator
 import com.google.androidstudiopoet.generators.android_modules.resources.LayoutResourcesGenerator
 import com.google.androidstudiopoet.generators.android_modules.resources.ResourcesGenerator
 import com.google.androidstudiopoet.generators.android_modules.resources.StringResourcesGenerator
+import com.google.androidstudiopoet.generators.packages.JavaGenerator
+import com.google.androidstudiopoet.generators.packages.KotlinGenerator
+import com.google.androidstudiopoet.generators.project.GradleSettingsGenerator
+import com.google.androidstudiopoet.generators.project.ProjectBuildGradleGenerator
+import com.google.androidstudiopoet.input.DependencyConfig
 import com.google.androidstudiopoet.input.ModuleConfig
 import com.google.androidstudiopoet.writers.FileWriter
-import com.google.androidstudiopoet.writers.SourceModuleWriter
+import com.google.androidstudiopoet.writers.ImageWriter
 import com.google.gson.Gson
 import com.google.gson.GsonBuilder
 
 object Injector {
 
     private val fileWriter = FileWriter()
+    private val imageWriter = ImageWriter()
     val dependencyValidator = DependencyValidator()
     private val amBuildGradleGenerator = AndroidModuleBuildGradleGenerator(fileWriter)
-    private val buildGradleGenerator = BuildGradleGenerator()
+    private val buildGradleGenerator = ModuleBuildGradleGenerator(fileWriter)
     private val gradleSettingsGenerator = GradleSettingsGenerator(fileWriter)
     private val projectBuildGradleGenerator = ProjectBuildGradleGenerator(fileWriter)
     private val stringResourcesGenerator = StringResourcesGenerator(fileWriter)
@@ -55,6 +56,9 @@ object Injector {
     private val manifestGenerator: ManifestGenerator = ManifestGenerator(fileWriter)
     private val proguardGenerator: ProguardGenerator = ProguardGenerator(fileWriter)
     private val packagesGenerator = PackagesGenerator(javaGenerator, kotlinGenerator)
+    private val dependencyImageGenerator = DependencyImageGenerator(imageWriter)
+    private val dependencyGraphGenerator = DependencyGraphGenerator(fileWriter, dependencyImageGenerator)
+    private val jsonConfigGenerator = JsonConfigGenerator(fileWriter)
 
     private val configPojoToFlavourConfigsConverter = ConfigPojoToFlavourConfigsConverter()
     private val configPojoToBuildTypeConfigsConverter = ConfigPojoToBuildTypeConfigsConverter()
@@ -75,15 +79,18 @@ object Injector {
                     fileWriter)
 
     val modulesWriter =
-            SourceModuleWriter(buildGradleGenerator, gradleSettingsGenerator,
-                    projectBuildGradleGenerator, androidModuleGenerator, packagesGenerator, fileWriter)
+            SourceModuleGenerator(buildGradleGenerator, gradleSettingsGenerator,
+                    projectBuildGradleGenerator, androidModuleGenerator, packagesGenerator,
+                    dependencyGraphGenerator, jsonConfigGenerator, fileWriter)
 
 
     private val moduleConfigDeserializer = ModuleConfigDeserializer()
+    private val dependencyConfigDeserializer = DependencyConfigDeserializer()
 
     val gson: Gson by lazy {
-        GsonBuilder().
-                registerTypeAdapter(ModuleConfig::class.java, moduleConfigDeserializer)
+        GsonBuilder()
+                .registerTypeAdapter(ModuleConfig::class.java, moduleConfigDeserializer)
+                .registerTypeAdapter(DependencyConfig::class.java, dependencyConfigDeserializer)
                 .create()
     }
 }
