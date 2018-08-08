@@ -4,11 +4,12 @@
 
 ![alt text](https://github.com/borisf/java-generator/blob/master/img/generator.png)  
   
-Inspired by [GradleBuildExperiment](https://github.com/NikitaKozlov/GradleBuildExperiment). A tool to generate a real life Java and Kotlin Android project to analyze and improve build times.
+
+Optimise your Android Studio builds, by creating generated projects. Inspired by [GradleBuildExperiment](https://github.com/NikitaKozlov/GradleBuildExperiment). A tool to generate a real life Java and Kotlin Android project to analyze and improve build times.
 
 Create a real life complexity Android project that mimics your own and observe the build times. If the build times of the generated project are way smaller than yours, it might be worth inspecting deeply your build configs and optimize.
 
-## Feautures
+## Features
 
 * Configurable number of modules
 * Configurable number of packages
@@ -20,6 +21,12 @@ Create a real life complexity Android project that mimics your own and observe t
 ## Download
 To run, grab the [latest JAR](https://github.com/android/android-studio-poet/releases)
 and run `java -jar as-poet.jar`.
+
+## Command line arguments
+Android Studio Poet supports the following command line arguments
+1. Config - just run  `java -jar as-poet.jar MyConfig.json`
+2. Folder with configs - just run  `java -jar as-poet.jar <path to a folder with configs>` Android Studio Poet 
+will crawl the folder recursively and execute each config in turn.
 
 ## Build & Run
 1. Clone the repo
