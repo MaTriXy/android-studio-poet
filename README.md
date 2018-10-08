@@ -17,6 +17,7 @@ Create a real life complexity Android project that mimics your own and observe t
 * Configurable number of inter module dependencies
 * Android resources (images, strings,activities, layouts)
 * Configurable version of gradle, kotlin, the android gradle plugin
+* Experimental Bazel support
 
 ## Download
 To run, grab the [latest JAR](https://github.com/android/android-studio-poet/releases)
@@ -30,8 +31,8 @@ will crawl the folder recursively and execute each config in turn.
 
 ## Build & Run
 1. Clone the repo
-2. `./gradlew fatJar`
-3. `java -jar build/libs/android-studio-poet-all-1.0-SNAPSHOT.jar`
+2. `./gradlew aspoet:fatJar`
+3. `java -jar aspoet/build/libs/aspoet-all.jar`
 
 ## How
 * The generated sources will include the basic functionality of method calling both in class itself and between the generated classes, both in Java and Kotlin
