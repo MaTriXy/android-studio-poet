@@ -18,6 +18,7 @@ import com.google.androidstudiopoet.models.FromToDependencyConfig
 import com.google.androidstudiopoet.models.Topologies
 import com.google.gson.Gson
 import java.security.InvalidParameterException
+import java.util.Locale
 
 class ConfigPOJO {
 
@@ -51,7 +52,7 @@ class ConfigPOJO {
     val javaMethodsPerClass: Int
         get() {
             val totalJavaClasses = (Integer.parseInt(javaClassCount!!) * Integer.parseInt(javaPackageCount!!))
-            return if (totalJavaClasses >0 ) Integer.parseInt(javaMethodCount!!) / totalJavaClasses else 0
+            return if (totalJavaClasses > 0) Integer.parseInt(javaMethodCount!!) / totalJavaClasses else 0
         }
 
     private val allKotlinMethods: Int
@@ -60,7 +61,7 @@ class ConfigPOJO {
     val kotlinMethodsPerClass: Int
         get() {
             val totalKotlinClasses = Integer.parseInt(kotlinClassCount!!) * Integer.parseInt(kotlinPackageCount!!)
-            return if (totalKotlinClasses > 0)  allKotlinMethods / totalKotlinClasses else 0
+            return if (totalKotlinClasses > 0) allKotlinMethods / totalKotlinClasses else 0
         }
 
     var dependencies: List<FromToDependencyConfig>? = null
@@ -85,16 +86,20 @@ class ConfigPOJO {
 
     var libraries: List<DependencyConfig.LibraryDependencyConfig>? = null
 
-    var extraBuildFileLines : List<String>? = null
+    var extraBuildFileLines: List<String>? = null
 
-    var extraAndroidBuildFileLines : List<String>? = null
+    var extraAndroidBuildFileLines: List<String>? = null
 
-    var generateTests : Boolean = false
+    var generateTests: Boolean = false
 
-    var generateBazelFiles : Boolean = false
+    var generateBazelFiles: Boolean = false
 
     // Will use same data binding configuration for all android modules
     var dataBindingConfig: DataBindingConfig? = null
+
+    var composeConfig: ComposeConfig? = null
+
+    var viewBinding: Boolean = false
 
     override fun toString(): String = toJson()
 
@@ -105,8 +110,7 @@ class ConfigPOJO {
     }
 
     val useKotlin: Boolean
-        get() = kotlinPackageCount!!.toInt() > 0
-
+        get() = kotlinPackageCount?.toInt()?.let { it > 0 } == true
 
     val resolvedDependencies: Map<String, Set<FromToDependencyConfig>> by lazy {
 
@@ -116,7 +120,7 @@ class ConfigPOJO {
         if (givenTopologies != null) {
             for (parameters in givenTopologies) {
                 val type = parameters["type"] ?: throw InvalidParameterException("No type specified in topology $parameters")
-                val topology: Topologies = Topologies.valueOf(type.toUpperCase())
+                val topology: Topologies = Topologies.valueOf(type.uppercase(Locale.getDefault()))
                 val currentDependencies = topology.generateDependencies(parameters, allModuleNames)
                 addDependencies(allDependencies, currentDependencies)
             }

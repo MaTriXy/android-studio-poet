@@ -1,18 +1,20 @@
 apply plugin: 'kotlin'
 
 dependencies {
-    compile "org.jetbrains.kotlin:kotlin-stdlib-jdk8:${kotlin_version}"
-    compile 'com.google.code.gson:gson:2.8.2'
-    compile 'com.squareup:javapoet:1.10.0'
-    compile 'org.jetbrains.kotlinx:kotlinx-coroutines-core:0.22.5'
-    compile 'junit:junit:4.12'
-    compile 'commons-io:commons-io:2.6'
-    compile project(':aspoet-input')
+    implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk8:${kotlin_version}"
+    implementation 'com.google.code.gson:gson:2.8.8'
+    implementation 'com.squareup:javapoet:1.13.0'
+    implementation 'com.squareup:kotlinpoet:1.10.1'
+    implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-core:1.5.2-native-mt'
+    implementation 'junit:junit:4.13.2'
+    implementation 'commons-io:commons-io:20030203.000550'
+    implementation project(':aspoet-input')
 
-    testCompile 'junit:junit:4.12'
-    testCompile 'org.mockito:mockito-inline:2.15.0'
-    testCompile 'com.nhaarman:mockito-kotlin-kt1.1:1.5.0'
-    testCompile "org.jetbrains.kotlin:kotlin-reflect:${kotlin_version}"
+    testImplementation 'junit:junit:4.13.2'
+    testImplementation 'org.mockito:mockito-inline:3.7.7'
+    testImplementation 'com.nhaarman.mockitokotlin2:mockito-kotlin:2.2.0'
+    testImplementation "org.jetbrains.kotlin:kotlin-reflect:${kotlin_version}"
+    testImplementation 'com.google.truth:truth:1.1.3'
 }
 
 // java -jar aspoet/build/libs/aspoet-all.jar
@@ -22,7 +24,13 @@ task fatJar(type: Jar) {
                 'Main-Class': 'com.google.androidstudiopoet.AndroidStudioPoet',
         )
     }
-    baseName = project.name + '-all'
-    from { configurations.compile.collect { it.directory ? it : zipTree(it) } }
+    archiveBaseName = project.name + '-all'
+    from { configurations.runtimeClasspath.collect { it.directory ? it : zipTree(it) } }
     with jar
+    duplicatesStrategy = 'include'
+}
+
+task runGenerator(type: JavaExec) {
+    mainClass = 'com.google.androidstudiopoet.AndroidStudioPoet'
+    classpath = sourceSets.main.runtimeClasspath
 }

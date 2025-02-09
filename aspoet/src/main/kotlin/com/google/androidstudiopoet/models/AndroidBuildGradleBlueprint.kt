@@ -22,10 +22,19 @@ import com.google.androidstudiopoet.input.FlavorConfig
 import com.google.androidstudiopoet.input.PluginConfig
 import com.google.androidstudiopoet.utils.joinPath
 
-class AndroidBuildGradleBlueprint(val isApplication: Boolean, private val enableKotlin: Boolean, val enableDataBinding: Boolean,
-                                  moduleRoot: String, androidBuildConfig: AndroidBuildConfig, val packageName: String,
-                                  val extraLines: List<String>?, productFlavorConfigs: List<FlavorConfig>?,
-                                  buildTypeConfigs: List<BuildTypeConfig>?, additionalDependencies: Set<Dependency>,
+class AndroidBuildGradleBlueprint(val isApplication: Boolean,
+                                  private val enableKotlin: Boolean,
+                                  val enableCompose: Boolean,
+                                  val enableDataBinding: Boolean,
+                                  val enableKapt: Boolean,
+                                  val enableViewBinding: Boolean,
+                                  moduleRoot: String,
+                                  androidBuildConfig: AndroidBuildConfig,
+                                  val packageName: String,
+                                  val extraLines: List<String>?,
+                                  productFlavorConfigs: List<FlavorConfig>?,
+                                  buildTypeConfigs: List<BuildTypeConfig>?,
+                                  additionalDependencies: Set<Dependency>,
                                   pluginConfigs: List<PluginConfig>?) {
     val plugins: Set<String> = createSetOfPlugins(pluginConfigs)
 
@@ -49,20 +58,24 @@ class AndroidBuildGradleBlueprint(val isApplication: Boolean, private val enable
 
     private fun createSetOfLibraries(): Set<LibraryDependency> {
         val result = mutableSetOf(
-                LibraryDependency("implementation", "com.android.support:appcompat-v7:26.1.0"),
-                LibraryDependency("implementation", "com.android.support.constraint:constraint-layout:1.0.2"),
+                LibraryDependency("implementation", "androidx.core:core-ktx:1.6.0"),
+                LibraryDependency("implementation", "androidx.appcompat:appcompat:1.3.1"),
+                LibraryDependency("implementation", "androidx.constraintlayout:constraintlayout:2.1.0"),
                 LibraryDependency("testImplementation", "junit:junit:4.12"),
-                LibraryDependency("androidTestImplementation", "com.android.support.test:runner:1.0.1"),
-                LibraryDependency("androidTestImplementation", "com.android.support.test.espresso:espresso-core:3.0.1"),
-                LibraryDependency("implementation", "com.android.support:multidex:1.0.1")
+                LibraryDependency("androidTestImplementation", "androidx.test.ext:junit:1.1.3"),
+                LibraryDependency("androidTestImplementation", "androidx.test.espresso:espresso-core:3.4.0"),
         )
 
         if (enableKotlin) {
-            result += LibraryDependency("implementation", "org.jetbrains.kotlin:kotlin-stdlib-jre8:${'$'}kotlin_version")
+            result += LibraryDependency("implementation", "org.jetbrains.kotlin:kotlin-stdlib-jdk8:${'$'}kotlin_version")
         }
 
-        if (enableKotlin && enableDataBinding) {
-            result += LibraryDependency("kapt", "com.android.databinding:compiler:3.0.1")
+        if (enableCompose) {
+            result += LibraryDependency("implementation", "androidx.compose.ui:ui:1.0.4")
+            result += LibraryDependency("implementation", "androidx.compose.material:material:1.0.4")
+            result += LibraryDependency("implementation", "androidx.activity:activity-compose:1.3.1")
+            result += LibraryDependency("androidTestImplementation", "androidx.compose.ui:ui-test-junit4:1.0.4")
+            result += LibraryDependency("debugImplementation", "androidx.compose.ui:ui-tooling:1.0.4")
         }
 
         return result
@@ -72,12 +85,11 @@ class AndroidBuildGradleBlueprint(val isApplication: Boolean, private val enable
         val result = mutableSetOf<String>()
         result += if (isApplication) "com.android.application" else "com.android.library"
         if (enableKotlin) {
-            result += listOf("kotlin-android", "kotlin-android-extensions")
+            result += listOf("kotlin-android")
         }
-        if (enableKotlin && enableDataBinding) {
+        if (enableKotlin && enableDataBinding && enableKapt) {
             result += "kotlin-kapt"
         }
-
         pluginConfigs?.map { it.id }?.forEach { result.add(it) }
 
         return result

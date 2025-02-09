@@ -49,9 +49,9 @@ class AndroidStudioPoet(private val modulesGenerator: SourceModuleGenerator, pri
             {
               "projectName": "GeneratedASProject",
               "root": "./../",
-              "gradleVersion": "4.3.1",
-              "androidGradlePluginVersion": "3.0.1",
-              "kotlinVersion": "1.1.60",
+              "gradleVersion": "7.2",
+              "androidGradlePluginVersion": "7.0.3",
+              "kotlinVersion": "1.5.31",
               "numModules": "2",
               "allMethods": "40",
               "javaPackageCount": "1",
@@ -62,14 +62,17 @@ class AndroidStudioPoet(private val modulesGenerator: SourceModuleGenerator, pri
               "androidModules": "2",
               "numActivitiesPerAndroidModule": "2",
               "productFlavors": [
-                  2, 3
-               ],
-               "topologies": [
-                  {"type": "star", "seed": "2"}
-               ],
+                2, 3
+              ],
+              "topologies": [
+                {"type": "star", "seed": "2"}
+              ],
               "dependencies": [
                 {"from": "module1", "to": "module0"}
               ],
+              "dataBindingConfig": {
+                "listenerCount": 0
+              },
               "buildTypes": 2,
               "generateTests": true
             }
@@ -207,12 +210,12 @@ class AndroidStudioPoet(private val modulesGenerator: SourceModuleGenerator, pri
 
     private fun createTextArea(jsonText: String): JTextArea {
         return JTextArea().apply {
-            background = Color(46, 48, 50)
-            foreground = Color.CYAN
-            font = Font("Menlo", Font.PLAIN, 18)
+            background = Color(0x07, 0x36, 0x42)
+            foreground = Color(0x93, 0xa1, 0xa1)
+            font = Font("Menlo", Font.PLAIN, 22)
             text = jsonText
             caretPosition = text.length
-            caretColor = Color.YELLOW
+            caretColor = Color(0xd3,0x36, 0x82)
             rows = 30
             columns = 50
         }

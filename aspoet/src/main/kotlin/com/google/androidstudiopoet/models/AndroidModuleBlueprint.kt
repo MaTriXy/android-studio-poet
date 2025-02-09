@@ -19,6 +19,7 @@ package com.google.androidstudiopoet.models
 import com.google.androidstudiopoet.input.*
 import com.google.androidstudiopoet.utils.joinPath
 import com.google.androidstudiopoet.utils.joinPaths
+import java.lang.IllegalArgumentException
 
 class AndroidModuleBlueprint(name: String,
                              private val numOfActivities: Int,
@@ -29,10 +30,13 @@ class AndroidModuleBlueprint(name: String,
                              dependencies: Set<Dependency>,
                              productFlavorConfigs: List<FlavorConfig>?,
                              buildTypeConfigs: List<BuildTypeConfig>?,
-                             javaConfig: CodeConfig?, kotlinConfig: CodeConfig?,
+                             javaConfig: CodeConfig?,
+                             kotlinConfig: CodeConfig?,
                              extraLines: List<String>?,
                              generateTests: Boolean,
                              dataBindingConfig: DataBindingConfig?,
+                             composeConfig: ComposeConfig?,
+                             viewBinding: Boolean,
                              val androidBuildConfig: AndroidBuildConfig,
                              pluginConfigs: List<PluginConfig>?,
                              generateBazelFiles: Boolean?
@@ -53,18 +57,30 @@ class AndroidModuleBlueprint(name: String,
                 .fold(ResourcesToRefer(listOf(), listOf(), listOf())) { acc, resourcesToRefer -> resourcesToRefer.combine(acc) }
     }
 
-    val resourcesBlueprint by lazy {
-        when (resourcesConfig) {
-            null -> null
-            else -> ResourcesBlueprint(name, resDirPath, resourcesConfig.stringCount ?: 0,
-                    resourcesConfig.imageCount ?: 0, resourcesConfig.layoutCount ?: 0, resourcesToReferWithin,
-                    listenerClassesForDataBinding)
+    val resourcesBlueprint : ResourcesBlueprint? by lazy {
+        when {
+            resourcesConfig == null -> null
+            resourcesConfig.isEmptyConfig() -> null
+            else -> ResourcesBlueprint(
+                    moduleName = name,
+                    enableCompose = enableCompose,
+                    resDirPath = resDirPath,
+                    stringCount = resourcesConfig.stringCount ?: 0,
+                    imageCount = resourcesConfig.imageCount ?: 0,
+                    layoutCount = resourcesConfig.layoutCount ?: 0,
+                    resourcesToReferWithin = resourcesToReferWithin,
+                    actionClasses = actionClasses
+            )
         }
     }
+
+    private fun ResourcesConfig.isEmptyConfig() =
+        imageCount == 0 && layoutCount == 0 && stringCount == 0
 
     private val layoutBlueprints by lazy {
         resourcesBlueprint?.layoutBlueprints ?: listOf()
     }
+
     val activityNames = (0 until numOfActivities).map { "Activity$it" }
 
     val resourcesToReferFromOutside by lazy {
@@ -73,8 +89,17 @@ class AndroidModuleBlueprint(name: String,
 
     val activityBlueprints by lazy {
         (0 until numOfActivities).map {
-            ActivityBlueprint(activityNames[it], layoutBlueprints[it], packagePath, packageName,
-                    classToReferFromActivity, listenerClassesForDataBindingPerLayout[it], hasButterknifeDependency())
+            ActivityBlueprint(
+                    className = activityNames[it],
+                    enableCompose = enableCompose,
+                    enableViewBinding = viewBinding,
+                    layout = layoutBlueprints[it],
+                    where = packagePath,
+                    packageName = packageName,
+                    classToReferFromActivity = classToReferFromActivity,
+                    listenerClassesForDataBinding = listenerClassesForDataBindingPerLayout[it],
+                    useButterknife = hasButterknifeDependency()
+            )
         }
     }
 
@@ -91,15 +116,44 @@ class AndroidModuleBlueprint(name: String,
         classBlueprintSequence.first()
     }
 
-    val hasDataBinding: Boolean = dataBindingConfig?.listenerCount?.let { it > 0 } ?: false
-    private val listenerClassesForDataBinding: List<ClassBlueprint> by lazy {
+    init {
+        if (dataBindingConfig != null && composeConfig != null) {
+            throw IllegalArgumentException("dataBindingConfig and composeConfig can't be both present")
+        }
+        if (composeConfig != null && viewBinding) {
+            throw IllegalArgumentException("composeConfig and viewBinding can't be both present")
+        }
+        if (dataBindingConfig != null && viewBinding) {
+            throw IllegalArgumentException("dataBindingConfig and viewBinding can't be both present")
+        }
+    }
+
+    internal val enableDataBinding: Boolean = dataBindingConfig?.listenerCount?.let { it > 0 } ?: false
+    internal val enableCompose: Boolean = composeConfig?.actionCount?.let { it > 0 } ?: false
+    internal val enableKapt: Boolean = dataBindingConfig?.kapt ?: false
+    private val actionClasses: List<ClassBlueprint> by lazy {
+        val count = dataBindingConfig?.listenerCount ?: composeConfig?.actionCount ?: 0
         classBlueprintSequence.filter { it.getMethodToCallFromOutside() != null }
-                .take(dataBindingConfig?.listenerCount ?: 0).toList()
+                .take(count).toList()
     }
 
     val buildGradleBlueprint: AndroidBuildGradleBlueprint by lazy {
-        AndroidBuildGradleBlueprint(hasLaunchActivity, useKotlin, hasDataBinding, moduleRoot, androidBuildConfig,
-                packageName, extraLines, productFlavorConfigs, buildTypeConfigs, dependencies, pluginConfigs)
+        AndroidBuildGradleBlueprint(
+                isApplication = hasLaunchActivity,
+                enableKotlin = useKotlin,
+                enableCompose = enableCompose,
+                enableDataBinding = enableDataBinding,
+                enableKapt = enableKapt,
+                enableViewBinding = viewBinding,
+                moduleRoot = moduleRoot,
+                androidBuildConfig = androidBuildConfig,
+                packageName = packageName,
+                extraLines = extraLines,
+                productFlavorConfigs = productFlavorConfigs,
+                buildTypeConfigs = buildTypeConfigs,
+                additionalDependencies = dependencies,
+                pluginConfigs = pluginConfigs
+        )
     }
 
     val buildBazelBlueprint: AndroidBuildBazelBlueprint? by lazy {

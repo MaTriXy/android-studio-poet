@@ -3,7 +3,7 @@ package com.google.androidstudiopoet.generators.android_modules
 import com.google.androidstudiopoet.models.*
 import com.google.androidstudiopoet.testutils.mock
 import com.google.androidstudiopoet.writers.FileWriter
-import com.nhaarman.mockito_kotlin.*
+import com.nhaarman.mockitokotlin2.*
 import org.junit.Test
 
 class AndroidModuleBuildGradleGeneratorTest {
@@ -14,32 +14,33 @@ class AndroidModuleBuildGradleGeneratorTest {
     fun `generator applies plugins from the blueprint`() {
         val blueprint = getAndroidBuildGradleBlueprint(plugins = setOf("plugin1", "plugin2"))
         androidModuleBuildGradleGenerator.generate(blueprint)
-        val expected = """apply plugin: 'plugin1'
-apply plugin: 'plugin2'
-android {
-    compileSdkVersion 0
-    defaultConfig {
-        minSdkVersion 0
-        targetSdkVersion 0
-        versionCode 1
-        versionName "1.0"
-        multiDexEnabled true
-        testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
-    }
-    buildTypes {
-        release {
-            minifyEnabled false
-            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
-        }
-    }
-    compileOptions {
-        targetCompatibility 1.8
-        sourceCompatibility 1.8
-    }
-}
-dependencies {
-    implementation fileTree(dir: 'libs', include: ['*.jar'])
-}"""
+        val expected = """
+            apply plugin: 'plugin1'
+            apply plugin: 'plugin2'
+            android {
+                compileSdkVersion 0
+                defaultConfig {
+                    minSdkVersion 0
+                    targetSdkVersion 0
+                    versionCode 1
+                    versionName "1.0"
+                    multiDexEnabled true
+                    testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
+                }
+                buildTypes {
+                    release {
+                        minifyEnabled false
+                        proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+                    }
+                }
+                compileOptions {
+                    targetCompatibility 1.8
+                    sourceCompatibility 1.8
+                }
+            }
+            dependencies {
+            
+            }""".trimIndent()
         verify(fileWriter).writeToFile(expected, "path")
     }
 
@@ -47,30 +48,31 @@ dependencies {
     fun `generator applies compileSdkVersion from the blueprint`() {
         val blueprint = getAndroidBuildGradleBlueprint(compileSdkVersion = 27)
         androidModuleBuildGradleGenerator.generate(blueprint)
-        val expected = """android {
-    compileSdkVersion 27
-    defaultConfig {
-        minSdkVersion 0
-        targetSdkVersion 0
-        versionCode 1
-        versionName "1.0"
-        multiDexEnabled true
-        testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
-    }
-    buildTypes {
-        release {
-            minifyEnabled false
-            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
-        }
-    }
-    compileOptions {
-        targetCompatibility 1.8
-        sourceCompatibility 1.8
-    }
-}
-dependencies {
-    implementation fileTree(dir: 'libs', include: ['*.jar'])
-}"""
+        val expected = """
+            android {
+                compileSdkVersion 27
+                defaultConfig {
+                    minSdkVersion 0
+                    targetSdkVersion 0
+                    versionCode 1
+                    versionName "1.0"
+                    multiDexEnabled true
+                    testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
+                }
+                buildTypes {
+                    release {
+                        minifyEnabled false
+                        proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+                    }
+                }
+                compileOptions {
+                    targetCompatibility 1.8
+                    sourceCompatibility 1.8
+                }
+            }
+            dependencies {
+            
+            }""".trimIndent()
         verify(fileWriter).writeToFile(expected, "path")
     }
 
@@ -78,30 +80,31 @@ dependencies {
     fun `generator applies minSdkVersion from the blueprint`() {
         val blueprint = getAndroidBuildGradleBlueprint(minSdkVersion = 27)
         androidModuleBuildGradleGenerator.generate(blueprint)
-        val expected = """android {
-    compileSdkVersion 0
-    defaultConfig {
-        minSdkVersion 27
-        targetSdkVersion 0
-        versionCode 1
-        versionName "1.0"
-        multiDexEnabled true
-        testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
-    }
-    buildTypes {
-        release {
-            minifyEnabled false
-            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
-        }
-    }
-    compileOptions {
-        targetCompatibility 1.8
-        sourceCompatibility 1.8
-    }
-}
-dependencies {
-    implementation fileTree(dir: 'libs', include: ['*.jar'])
-}"""
+        val expected = """
+            android {
+                compileSdkVersion 0
+                defaultConfig {
+                    minSdkVersion 27
+                    targetSdkVersion 0
+                    versionCode 1
+                    versionName "1.0"
+                    multiDexEnabled true
+                    testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
+                }
+                buildTypes {
+                    release {
+                        minifyEnabled false
+                        proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+                    }
+                }
+                compileOptions {
+                    targetCompatibility 1.8
+                    sourceCompatibility 1.8
+                }
+            }
+            dependencies {
+            
+            }""".trimIndent()
         verify(fileWriter).writeToFile(expected, "path")
     }
 
@@ -109,30 +112,31 @@ dependencies {
     fun `generator applies targetSdkVersion from the blueprint`() {
         val blueprint = getAndroidBuildGradleBlueprint(targetSdkVersion = 27)
         androidModuleBuildGradleGenerator.generate(blueprint)
-        val expected = """android {
-    compileSdkVersion 0
-    defaultConfig {
-        minSdkVersion 0
-        targetSdkVersion 27
-        versionCode 1
-        versionName "1.0"
-        multiDexEnabled true
-        testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
-    }
-    buildTypes {
-        release {
-            minifyEnabled false
-            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
-        }
-    }
-    compileOptions {
-        targetCompatibility 1.8
-        sourceCompatibility 1.8
-    }
-}
-dependencies {
-    implementation fileTree(dir: 'libs', include: ['*.jar'])
-}"""
+        val expected = """
+            android {
+                compileSdkVersion 0
+                defaultConfig {
+                    minSdkVersion 0
+                    targetSdkVersion 27
+                    versionCode 1
+                    versionName "1.0"
+                    multiDexEnabled true
+                    testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
+                }
+                buildTypes {
+                    release {
+                        minifyEnabled false
+                        proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+                    }
+                }
+                compileOptions {
+                    targetCompatibility 1.8
+                    sourceCompatibility 1.8
+                }
+            }
+            dependencies {
+            
+            }""".trimIndent()
         verify(fileWriter).writeToFile(expected, "path")
     }
 
@@ -144,33 +148,33 @@ dependencies {
                 LibraryDependency("kapt", "library3")
         ))
         androidModuleBuildGradleGenerator.generate(blueprint)
-        val expected = """android {
-    compileSdkVersion 0
-    defaultConfig {
-        minSdkVersion 0
-        targetSdkVersion 0
-        versionCode 1
-        versionName "1.0"
-        multiDexEnabled true
-        testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
-    }
-    buildTypes {
-        release {
-            minifyEnabled false
-            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
-        }
-    }
-    compileOptions {
-        targetCompatibility 1.8
-        sourceCompatibility 1.8
-    }
-}
-dependencies {
-    implementation fileTree(dir: 'libs', include: ['*.jar'])
-    implementation "library1"
-    testApi "library2"
-    kapt "library3"
-}"""
+        val expected = """
+            android {
+                compileSdkVersion 0
+                defaultConfig {
+                    minSdkVersion 0
+                    targetSdkVersion 0
+                    versionCode 1
+                    versionName "1.0"
+                    multiDexEnabled true
+                    testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
+                }
+                buildTypes {
+                    release {
+                        minifyEnabled false
+                        proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+                    }
+                }
+                compileOptions {
+                    targetCompatibility 1.8
+                    sourceCompatibility 1.8
+                }
+            }
+            dependencies {
+                implementation "library1"
+                testApi "library2"
+                kapt "library3"
+            }""".trimIndent()
         verify(fileWriter).writeToFile(expected, "path")
     }
 
@@ -180,39 +184,40 @@ dependencies {
                 flavorDimensions = setOf("dim1", "dim2", "dim3"),
                 productFlavors = setOf(Flavor("flav1", "dim1"), Flavor("flav2")))
         androidModuleBuildGradleGenerator.generate(blueprint)
-        val expected = """android {
-    compileSdkVersion 0
-    defaultConfig {
-        minSdkVersion 0
-        targetSdkVersion 0
-        versionCode 1
-        versionName "1.0"
-        multiDexEnabled true
-        testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
-    }
-    buildTypes {
-        release {
-            minifyEnabled false
-            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
-        }
-    }
-    compileOptions {
-        targetCompatibility 1.8
-        sourceCompatibility 1.8
-    }
-    flavorDimensions "dim1", "dim2", "dim3"
-    productFlavors {
-        flav1 {
-            dimension "dim1"
-        }
-        flav2 {
-
-        }
-    }
-}
-dependencies {
-    implementation fileTree(dir: 'libs', include: ['*.jar'])
-}"""
+        val expected = """
+            android {
+                compileSdkVersion 0
+                defaultConfig {
+                    minSdkVersion 0
+                    targetSdkVersion 0
+                    versionCode 1
+                    versionName "1.0"
+                    multiDexEnabled true
+                    testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
+                }
+                buildTypes {
+                    release {
+                        minifyEnabled false
+                        proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+                    }
+                }
+                compileOptions {
+                    targetCompatibility 1.8
+                    sourceCompatibility 1.8
+                }
+                flavorDimensions "dim1", "dim2", "dim3"
+                productFlavors {
+                    flav1 {
+                        dimension "dim1"
+                    }
+                    flav2 {
+            
+                    }
+                }
+            }
+            dependencies {
+            
+            }""".trimIndent()
         verify(fileWriter).writeToFile(expected, "path")
     }
 
@@ -223,37 +228,38 @@ dependencies {
                 BuildType("buildType2", "line1\nline2")
         ))
         androidModuleBuildGradleGenerator.generate(blueprint)
-        val expected = """android {
-    compileSdkVersion 0
-    defaultConfig {
-        minSdkVersion 0
-        targetSdkVersion 0
-        versionCode 1
-        versionName "1.0"
-        multiDexEnabled true
-        testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
-    }
-    buildTypes {
-        release {
-            minifyEnabled false
-            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
-        }
-        buildType1 {
-
-        }
-        buildType2 {
-            line1
-            line2
-        }
-    }
-    compileOptions {
-        targetCompatibility 1.8
-        sourceCompatibility 1.8
-    }
-}
-dependencies {
-    implementation fileTree(dir: 'libs', include: ['*.jar'])
-}"""
+        val expected = """
+            android {
+                compileSdkVersion 0
+                defaultConfig {
+                    minSdkVersion 0
+                    targetSdkVersion 0
+                    versionCode 1
+                    versionName "1.0"
+                    multiDexEnabled true
+                    testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
+                }
+                buildTypes {
+                    release {
+                        minifyEnabled false
+                        proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+                    }
+                    buildType1 {
+            
+                    }
+                    buildType2 {
+                        line1
+                        line2
+                    }
+                }
+                compileOptions {
+                    targetCompatibility 1.8
+                    sourceCompatibility 1.8
+                }
+            }
+            dependencies {
+            
+            }""".trimIndent()
         verify(fileWriter).writeToFile(expected, "path")
     }
 
@@ -263,34 +269,35 @@ dependencies {
                 GradleTask("task1", listOf("line1", "line2"))
         ))
         androidModuleBuildGradleGenerator.generate(blueprint)
-        val expected = """android {
-    compileSdkVersion 0
-    defaultConfig {
-        minSdkVersion 0
-        targetSdkVersion 0
-        versionCode 1
-        versionName "1.0"
-        multiDexEnabled true
-        testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
-    }
-    buildTypes {
-        release {
-            minifyEnabled false
-            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
-        }
-    }
-    compileOptions {
-        targetCompatibility 1.8
-        sourceCompatibility 1.8
-    }
-}
-dependencies {
-    implementation fileTree(dir: 'libs', include: ['*.jar'])
-}
-task1 {
-    line1
-    line2
-}"""
+        val expected = """
+            android {
+                compileSdkVersion 0
+                defaultConfig {
+                    minSdkVersion 0
+                    targetSdkVersion 0
+                    versionCode 1
+                    versionName "1.0"
+                    multiDexEnabled true
+                    testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
+                }
+                buildTypes {
+                    release {
+                        minifyEnabled false
+                        proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+                    }
+                }
+                compileOptions {
+                    targetCompatibility 1.8
+                    sourceCompatibility 1.8
+                }
+            }
+            dependencies {
+            
+            }
+            task1 {
+                line1
+                line2
+            }""".trimIndent()
         verify(fileWriter).writeToFile(expected, "path")
     }
 

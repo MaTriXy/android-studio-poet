@@ -49,8 +49,10 @@ class AndroidModuleBuildGradleGenerator(val fileWriter: FileWriter) {
                 Expression("compileSdkVersion", "${blueprint.compileSdkVersion}"),
                 defaultConfigClosure(blueprint),
                 buildTypesClosure(blueprint),
-                (if (blueprint.enableDataBinding) dataBindingClosure() else null),
-                compileOptionsClosure()
+                kotlinOptionsClosure(blueprint),
+                buildFeaturesClosure(blueprint),
+                compileOptionsClosure(),
+                composeOptionsClosure(blueprint)
         ) + createFlavorsSection(blueprint.productFlavors, blueprint.flavorDimensions)
 
         return Closure("android", statements)
@@ -102,25 +104,51 @@ class AndroidModuleBuildGradleGenerator(val fileWriter: FileWriter) {
         )
     }
 
-    private fun dataBindingClosure(): Closure {
-        return Closure("dataBinding", listOf(
-                StringStatement("enabled = true")
-        ))
+    private fun buildFeaturesClosure(blueprint: AndroidBuildGradleBlueprint): Closure? {
+        val statements = mutableListOf<StringStatement>()
+        when {
+            blueprint.enableCompose -> statements.add(StringStatement("compose true"))
+            blueprint.enableDataBinding -> statements.add(StringStatement("dataBinding true"))
+            blueprint.enableViewBinding -> statements.add(StringStatement("viewBinding true"))
+            else -> {}
+        }
+        return if (statements.isNotEmpty()) Closure("buildFeatures", statements) else null
+    }
+
+    private fun kotlinOptionsClosure(blueprint: AndroidBuildGradleBlueprint): Closure? {
+        return if (blueprint.enableCompose) {
+            Closure("kotlinOptions", listOf(
+                    StringStatement("jvmTarget = '1.8'"),
+                    StringStatement("useIR = true")
+            ))
+        } else {
+            null
+        }
     }
 
     private fun compileOptionsClosure(): Closure {
         val expressions = listOf(
                 Expression("targetCompatibility", "1.8"),
-                Expression("sourceCompatibility", "1.8")
+                Expression("sourceCompatibility", "1.8"),
         )
         return Closure("compileOptions", expressions)
+    }
+
+    private fun composeOptionsClosure(blueprint: AndroidBuildGradleBlueprint): Closure? {
+        return if (blueprint.enableCompose) {
+            Closure("composeOptions", listOf(
+                    Expression("kotlinCompilerExtensionVersion", "'1.0.4'"),
+                    Expression("kotlinCompilerVersion", "'1.5.31'"),
+            ))
+        } else {
+            null
+        }
     }
 
     private fun dependenciesClosure(blueprint: AndroidBuildGradleBlueprint): Closure {
         val dependencyExpressions: Set<Statement> = blueprint.dependencies.mapNotNull { it.toExpression() }.toSet()
 
-        val statements = listOf(Expression("implementation", "fileTree(dir: 'libs', include: ['*.jar'])")) +
-                dependencyExpressions
+        val statements = dependencyExpressions.toList()
         return Closure("dependencies", statements)
     }
 

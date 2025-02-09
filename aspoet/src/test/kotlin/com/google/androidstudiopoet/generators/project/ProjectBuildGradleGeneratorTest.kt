@@ -20,8 +20,8 @@ import com.google.androidstudiopoet.models.ProjectBuildGradleBlueprint
 import com.google.androidstudiopoet.models.Repository
 import com.google.androidstudiopoet.testutils.mock
 import com.google.androidstudiopoet.writers.FileWriter
-import com.nhaarman.mockito_kotlin.verify
-import com.nhaarman.mockito_kotlin.whenever
+import com.nhaarman.mockitokotlin2.verify
+import com.nhaarman.mockitokotlin2.whenever
 import org.junit.Test
 
 class ProjectBuildGradleGeneratorTest {
@@ -42,9 +42,6 @@ class ProjectBuildGradleGeneratorTest {
 
     }
 }
-plugins {
-    id 'com.gradle.build-scan' version '1.8'
-}
 allprojects {
     repositories {
 
@@ -52,12 +49,6 @@ allprojects {
 }
 task clean(type: Delete) {
     delete rootProject.buildDir
-}
-buildScan {
-    licenseAgreementUrl = 'https://gradle.com/terms-of-service'
-    licenseAgree = 'yes'
-    tag 'SAMPLE'
-    link 'GitHub', 'https://github.com/gradle/gradle-build-scan-quickstart'
 }"""
 
         verify(fileWriter).writeToFile(expected, "path")
@@ -67,7 +58,7 @@ buildScan {
     fun `generators adds provided repositories`() {
         val blueprint = getProjectBuildGradleBlueprint(
                 repositories = setOf(
-                        Repository.Named("jcenter"),
+                        Repository.Named("mavenCentral"),
                         Repository.Remote("http://smth")
                 )
         )
@@ -76,21 +67,15 @@ buildScan {
 
         val expected = """buildscript {
     repositories {
-        jcenter()
-        maven {
-            url "http://smth"
-        }
+
     }
     dependencies {
 
     }
 }
-plugins {
-    id 'com.gradle.build-scan' version '1.8'
-}
 allprojects {
     repositories {
-        jcenter()
+        mavenCentral()
         maven {
             url "http://smth"
         }
@@ -98,12 +83,6 @@ allprojects {
 }
 task clean(type: Delete) {
     delete rootProject.buildDir
-}
-buildScan {
-    licenseAgreementUrl = 'https://gradle.com/terms-of-service'
-    licenseAgree = 'yes'
-    tag 'SAMPLE'
-    link 'GitHub', 'https://github.com/gradle/gradle-build-scan-quickstart'
 }"""
 
         verify(fileWriter).writeToFile(expected, "path")
@@ -129,9 +108,6 @@ buildScan {
         classpath "classpath2"
     }
 }
-plugins {
-    id 'com.gradle.build-scan' version '1.8'
-}
 allprojects {
     repositories {
 
@@ -139,12 +115,6 @@ allprojects {
 }
 task clean(type: Delete) {
     delete rootProject.buildDir
-}
-buildScan {
-    licenseAgreementUrl = 'https://gradle.com/terms-of-service'
-    licenseAgree = 'yes'
-    tag 'SAMPLE'
-    link 'GitHub', 'https://github.com/gradle/gradle-build-scan-quickstart'
 }"""
 
         verify(fileWriter).writeToFile(expected, "path")
@@ -167,9 +137,6 @@ buildScan {
 
     }
 }
-plugins {
-    id 'com.gradle.build-scan' version '1.8'
-}
 allprojects {
     repositories {
 
@@ -177,12 +144,6 @@ allprojects {
 }
 task clean(type: Delete) {
     delete rootProject.buildDir
-}
-buildScan {
-    licenseAgreementUrl = 'https://gradle.com/terms-of-service'
-    licenseAgree = 'yes'
-    tag 'SAMPLE'
-    link 'GitHub', 'https://github.com/gradle/gradle-build-scan-quickstart'
 }"""
 
         verify(fileWriter).writeToFile(expected, "path")

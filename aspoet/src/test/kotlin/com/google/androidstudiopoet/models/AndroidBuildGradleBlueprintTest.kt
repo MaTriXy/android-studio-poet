@@ -49,12 +49,11 @@ class AndroidBuildGradleBlueprintTest {
     }
 
     @Test
-    fun `plugins contain kotlin-android and kotlin-android-extensions when Kotlin is enabled`() {
+    fun `plugins contain kotlin-android when Kotlin is enabled`() {
         val blueprint = createAndroidBuildGradleBlueprint(enableKotlin = true)
 
         assertOn(blueprint) {
             plugins.assertContains("kotlin-android")
-            plugins.assertContains("kotlin-android-extensions")
         }
     }
 
@@ -77,8 +76,8 @@ class AndroidBuildGradleBlueprintTest {
     }
 
     @Test
-    fun `plugins contain kotlin-kapt when Kotlin and data binding are enabled`() {
-        val blueprint = createAndroidBuildGradleBlueprint(enableKotlin = true, enableDataBinding = true)
+    fun `plugins contain kotlin-kapt when Kotlin, data binding, and kapt is enabled`() {
+        val blueprint = createAndroidBuildGradleBlueprint(enableKotlin = true, enableDataBinding = true, enableKapt = true)
 
         assertOn(blueprint) {
             plugins.assertContains("kotlin-kapt")
@@ -101,12 +100,33 @@ class AndroidBuildGradleBlueprintTest {
 
         assertOn(blueprint) {
             libraries.assertEquals(setOf(
-                    LibraryDependency("implementation", "com.android.support:appcompat-v7:26.1.0"),
-                    LibraryDependency("implementation", "com.android.support.constraint:constraint-layout:1.0.2"),
+                    LibraryDependency("implementation", "androidx.core:core-ktx:1.6.0"),
+                    LibraryDependency("implementation", "androidx.appcompat:appcompat:1.3.1"),
+                    LibraryDependency("implementation", "androidx.constraintlayout:constraintlayout:2.1.0"),
                     LibraryDependency("testImplementation", "junit:junit:4.12"),
-                    LibraryDependency("androidTestImplementation", "com.android.support.test:runner:1.0.1"),
-                    LibraryDependency("androidTestImplementation", "com.android.support.test.espresso:espresso-core:3.0.1"),
-                    LibraryDependency("implementation", "com.android.support:multidex:1.0.1")
+                    LibraryDependency("androidTestImplementation", "androidx.test.ext:junit:1.1.3"),
+                    LibraryDependency("androidTestImplementation", "androidx.test.espresso:espresso-core:3.4.0")
+            ))
+        }
+    }
+
+    @Test
+    fun `compose variant contains compose libraries`() {
+        val blueprint = createAndroidBuildGradleBlueprint(enableCompose = true)
+
+        assertOn(blueprint) {
+            libraries.assertEquals(setOf(
+                    LibraryDependency("implementation", "androidx.core:core-ktx:1.6.0"),
+                    LibraryDependency("implementation", "androidx.appcompat:appcompat:1.3.1"),
+                    LibraryDependency("implementation", "androidx.constraintlayout:constraintlayout:2.1.0"),
+                    LibraryDependency("testImplementation", "junit:junit:4.12"),
+                    LibraryDependency("androidTestImplementation", "androidx.test.ext:junit:1.1.3"),
+                    LibraryDependency("androidTestImplementation", "androidx.test.espresso:espresso-core:3.4.0"),
+                    LibraryDependency("implementation", "androidx.compose.ui:ui:1.0.4"),
+                    LibraryDependency("implementation", "androidx.compose.material:material:1.0.4"),
+                    LibraryDependency("implementation", "androidx.activity:activity-compose:1.3.1"),
+                    LibraryDependency("androidTestImplementation", "androidx.compose.ui:ui-test-junit4:1.0.4"),
+                    LibraryDependency("debugImplementation", "androidx.compose.ui:ui-tooling:1.0.4")
             ))
         }
     }
@@ -116,34 +136,7 @@ class AndroidBuildGradleBlueprintTest {
         val blueprint = createAndroidBuildGradleBlueprint(enableKotlin = true)
 
         assertOn(blueprint) {
-            libraries.assertContains(LibraryDependency("implementation", "org.jetbrains.kotlin:kotlin-stdlib-jre8:${'$'}kotlin_version"))
-        }
-    }
-
-    @Test
-    fun `plugins do not contain data binding compiler when Kotlin is disabled and data binding is enabled`() {
-        val blueprint = createAndroidBuildGradleBlueprint(enableKotlin = false, enableDataBinding = true)
-
-        assertOn(blueprint) {
-            libraries.assertNotContains(LibraryDependency("kapt", "com.android.databinding:compiler:3.0.1"))
-        }
-    }
-
-    @Test
-    fun `libraries do not contain data binding compiler when Kotlin is enabled and data binding is disabled`() {
-        val blueprint = createAndroidBuildGradleBlueprint(enableKotlin = true, enableDataBinding = false)
-
-        assertOn(blueprint) {
-            libraries.assertNotContains(LibraryDependency("kapt", "com.android.databinding:compiler:3.0.1"))
-        }
-    }
-
-    @Test
-    fun `libraries contain data binding compiler when Kotlin and data binding are enabled`() {
-        val blueprint = createAndroidBuildGradleBlueprint(enableKotlin = true, enableDataBinding = true)
-
-        assertOn(blueprint) {
-            libraries.assertContains(LibraryDependency("kapt", "com.android.databinding:compiler:3.0.1"))
+            libraries.assertContains(LibraryDependency("implementation", "org.jetbrains.kotlin:kotlin-stdlib-jdk8:${'$'}kotlin_version"))
         }
     }
 
@@ -214,12 +207,14 @@ class AndroidBuildGradleBlueprintTest {
         val blueprint = createAndroidBuildGradleBlueprint(productFlavorConfigs = listOf(flavorConfig))
 
         assertOn(blueprint) {
-            blueprint.flavorDimensions!!.assertEquals(kotlin.collections.setOf(dimension))
-            blueprint.productFlavors!!.assertEquals(kotlin.collections.setOf(
-                    com.google.androidstudiopoet.models.Flavor(expectedFlavorName0, dimension),
-                    com.google.androidstudiopoet.models.Flavor(expectedFlavorName1, dimension),
-                    com.google.androidstudiopoet.models.Flavor(expectedFlavorName2, dimension)
-            ))
+            blueprint.flavorDimensions!!.assertEquals(setOf(dimension))
+            blueprint.productFlavors!!.assertEquals(
+                setOf(
+                    Flavor(expectedFlavorName0, dimension),
+                    Flavor(expectedFlavorName1, dimension),
+                    Flavor(expectedFlavorName2, dimension)
+                )
+            )
         }
     }
 
@@ -264,7 +259,10 @@ class AndroidBuildGradleBlueprintTest {
 
     private fun createAndroidBuildGradleBlueprint(isApplication: Boolean = false,
                                                   enableKotlin: Boolean = false,
+                                                  enableCompose: Boolean = false,
                                                   enableDataBinding: Boolean = false,
+                                                  enableKapt: Boolean = false,
+                                                  enableViewBinding: Boolean = false,
                                                   moduleRoot: String = "",
                                                   androidBuildConfig: AndroidBuildConfig = AndroidBuildConfig(),
                                                   packageName: String = "com.example",
@@ -273,6 +271,20 @@ class AndroidBuildGradleBlueprintTest {
                                                   buildTypeConfigs: List<BuildTypeConfig>? = null,
                                                   dependencies: Set<ModuleDependency> = setOf(),
                                                   pluginConfigs: List<PluginConfig>? = null
-    ) = AndroidBuildGradleBlueprint(isApplication, enableKotlin, enableDataBinding, moduleRoot, androidBuildConfig,
-            packageName, extraLines, productFlavorConfigs, buildTypeConfigs, dependencies, pluginConfigs)
+    ) = AndroidBuildGradleBlueprint(
+            isApplication,
+            enableKotlin,
+            enableCompose,
+            enableDataBinding,
+            enableKapt,
+            enableViewBinding,
+            moduleRoot,
+            androidBuildConfig,
+            packageName,
+            extraLines,
+            productFlavorConfigs,
+            buildTypeConfigs,
+            dependencies,
+            pluginConfigs
+    )
 }

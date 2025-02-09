@@ -18,27 +18,24 @@ package com.google.androidstudiopoet.models
 
 import com.google.androidstudiopoet.utils.joinPath
 
-class LayoutBlueprint(val name: String, layoutsDir: String,
-                      stringsWithDataBindingListenersToUse: List<Pair<String, ClassBlueprint?>>,
-                      imagesWithDataBindingListenersToUse: List<Pair<String, ClassBlueprint?>>,
+class LayoutBlueprint(val name: String,
+                      layoutsDir: String,
+                      val enableCompose: Boolean,
+                      textsWithActions: List<Pair<String, ClassBlueprint?>>,
+                      imagesWithActions: List<Pair<String, ClassBlueprint?>>,
                       val layoutsToInclude: List<String>) {
 
     val filePath = layoutsDir.joinPath(name) + ".xml"
-    val textViewsBlueprints = stringsWithDataBindingListenersToUse.mapIndexed { index, it ->
-        TextViewBlueprint("$name${it.first}$index", it.first, it.second?.toOnClickAction())
+    val textViewsBlueprints = textsWithActions.mapIndexed { index, it ->
+        TextViewBlueprint("$name${it.first}$index", it.first, it.second)
     }
 
-    val imageViewsBlueprints = imagesWithDataBindingListenersToUse.mapIndexed { index, it ->
-        ImageViewBlueprint("$name${it.first}$index", it.first, it.second?.toOnClickAction())
+    val imageViewsBlueprints = imagesWithActions.mapIndexed { index, it ->
+        ImageViewBlueprint("$name${it.first}$index", it.first, it.second)
     }
 
     val classesToBind
-            = (stringsWithDataBindingListenersToUse + imagesWithDataBindingListenersToUse).mapNotNull { it.second }
+            = (textsWithActions + imagesWithActions).mapNotNull { it.second }
 
     val hasLayoutTag = classesToBind.isNotEmpty()
-}
-
-
-fun ClassBlueprint.toOnClickAction(): String {
-    return "(view) -> ${className.decapitalize()}.${getMethodToCallFromOutside()!!.methodName}()"
 }
